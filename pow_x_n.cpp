@@ -17,20 +17,17 @@ public:
         bias = 1023;
         ud_in.d = x;
        
-        auto inBitVec = double2bitvec(x);
-        auto outBitVec = inBitVec;
-        vector<bool> expMaskVec(64,0);
-        vector<bool> sigMaskVec(64,0);
-       
         // Define Masks
         long long int signMaskLLint = LLONG_MIN;
         long long int exptMaskLLint = ~(~(LLONG_MIN >> 11) | LONG_MIN);
         long long int sgfdMaskLLint = ~(LLONG_MIN >> 11);       
         
         // Sign bit
-        if (( ((ud_in.u & signMaskLLint) == signMaskLLint) && n%2>0))
+        sign = 0;
+        if (( ((ud_in.u & signMaskLLint) == signMaskLLint) && n%2>0)){
             sign = ud_in.u & signMaskLLint;
-        
+        }
+                
         // Exponant bits
         expn = (bias << 52);
 
@@ -57,14 +54,10 @@ public:
         sgfd = ud_sfgd.u & sgfdMaskLLint;
 
         // Combine sign, exponent and significand bits that are shifted to appropriate positions
-        ud_out.u = sign ^ expn ^ sgfd;
-        
-        std::cout << "result : " << ud_out.d << std::endl;
-        
+        ud_out.u = sign ^ expn ^ sgfd;        
        
         // Prints
         /*
-        printVec(inBitVec, "inpVect ");
         printVec(int2bitvec(signMaskLLint), "signMask");
         printVec(int2bitvec(exptMaskLLint), "exptMask");
         printVec(int2bitvec(sgfdMaskLLint), "sgfdMask");
@@ -117,7 +110,6 @@ public:
     
     double binomialExpansion(double sgfdNum, int power)
     {
-        std::cout << "significand : " << sgfdNum << std::endl;
         udouble ud;
         ud.d = sgfdNum;
         double x = (ud.d > 1)?(ud.d - 1):(1 - ud.d);
@@ -131,9 +123,7 @@ public:
         
         int s = 1;
         double exponent = x;
-        
-        std::cout << "exponent : " << exponent << std::endl;
-        
+                
         factCoeff = power;
         
         int lim = 10;
@@ -142,8 +132,7 @@ public:
         for (int i=1; i<=lim; ++i)
         {
             sum +=  sign * factCoeff * exponent;
-            //std::cout << "fact " << factCoeff << "| exp " << exponent 
-            //          << " | sum upd = " << sum << std::endl;
+            //cout<<"fact "<<factCoeff<<"|exp "<<exponent<<"|sum = "<<sum<<endl;
             factCoeff *= double(power-i)/double(i+1);
             exponent *= x;
             sign *= s;
